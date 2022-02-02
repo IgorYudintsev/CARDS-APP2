@@ -42,13 +42,6 @@ export const Login = () => {
     let dispatch = useDispatch();
     let isLogin = useSelector<rootReducerType>(state => state.login.isLogin)
 
-    // если isLogin в Редаксе false, то отправить запрос на сервер для проверки куки-> если ок то заполнить Редакс данными
-    useEffect(() => {
-        if (!isLogin) {
-            dispatch(AuthMeThunk(setError))
-        }
-    }, [])
-
 
     const formik = useFormik({
         initialValues: {
@@ -103,9 +96,6 @@ export const Login = () => {
     //если зарегистрировался, переходим на profile
     if (isLogin) {
         return <Navigate to={'/'}/>
-    }
-    if (!isLogin) {
-
     }
 
     if (forgotPasswordValue) {

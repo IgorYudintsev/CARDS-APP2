@@ -6,15 +6,15 @@ let initialState = {
     isLogin: false
 }
 
-type InitialStateType = typeof initialState
+export type InitialStateType = typeof initialState
 
 export const LoginReducer = (state: InitialStateType = initialState, action: typeForLoginReducer): InitialStateType => {
     switch (action.type) {
         case 'LOG-IN': {
             return {...action.payload, isLogin: action.isLogin}
         }
-        case "AUTH-ME":{
-            return {...action.data,isLogin: action.isLogin}
+        case "AUTH-ME": {
+            return {...action.data, isLogin: true}
         }
         case "LOG-OUT": {
             // return {...state,isLogin: action.payload.value}
@@ -25,7 +25,7 @@ export const LoginReducer = (state: InitialStateType = initialState, action: typ
     }
 }
 
-type typeForLoginReducer = logInACType | LogOutACType |AuthMeACType
+type typeForLoginReducer = logInACType | LogOutACType | AuthMeACType
 
 export const authRegisterThunk = (payload: { email: string, password: string },
                                   setLoading: (loading: boolean) => void,
@@ -83,21 +83,22 @@ export const logInThunkCreator = (payload: { email: string, password: string, re
         }
     }
 
-type AuthMeACType=ReturnType<typeof AuthMeAC>
+type AuthMeACType = ReturnType<typeof AuthMeAC>
 
-export const AuthMeAC = (data: AuthMeType, isLogin: boolean) => {
+export const AuthMeAC = (data: AuthMeType) => {
     return {
         type: 'AUTH-ME',
-        data,isLogin
+        data
     } as const
 }
 
-export const AuthMeThunk = (setError: (error: null) => void) => async (dispatch: Dispatch) => {
+export const AuthMeThunk = (setLoading:(loading:boolean)=>void) => async (dispatch: Dispatch) => {
     try {
         let res = await AuthApi.authMe();
-        dispatch(AuthMeAC(res.data, true))
+        dispatch(AuthMeAC(res.data))
     } catch (err: any) {
-        setError(err.response?.data.error)
+    }finally {
+        setLoading(false)
     }
 }
 
