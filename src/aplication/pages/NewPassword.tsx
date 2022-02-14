@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Navigate, useLocation} from "react-router-dom";
+import {Navigate, useLocation, useParams} from "react-router-dom";
 import {
     Alert,
     Button,
@@ -32,8 +32,10 @@ type State = {
 
 export const NewPassword = () => {
     //--------------------------------------------------ловим токен-------------------------------------------------------
-    const location = useLocation()
-    let token = location.pathname.substring(location.pathname.lastIndexOf('/') + 1)
+    // const location = useLocation()
+    // let token = location.pathname.substring(location.pathname.lastIndexOf('/') + 1)
+
+    const {token} = useParams<'token'>();
 
     let [error, setError] = useState(null)
     let [loading, setLoading] = useState(false)

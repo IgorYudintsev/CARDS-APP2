@@ -1,6 +1,6 @@
 import {Dispatch} from "redux";
 import {AuthApi, AuthMeType, DataType} from "../Api/AuthApi";
-import {AxiosError} from "axios";
+
 
 let initialState = {
     isLogin: false
@@ -8,7 +8,7 @@ let initialState = {
 
 export type InitialStateType = typeof initialState
 
-export const LoginReducer = (state: InitialStateType = initialState, action: typeForLoginReducer): InitialStateType => {
+export const LoginReducer = (state: InitialStateType = initialState, action: ActionsTypeForLoginReducer): InitialStateType => {
     switch (action.type) {
         case 'LOG-IN': {
             return {...action.payload, isLogin: action.isLogin}
@@ -25,7 +25,7 @@ export const LoginReducer = (state: InitialStateType = initialState, action: typ
     }
 }
 
-type typeForLoginReducer = logInACType | LogOutACType | AuthMeACType
+export type ActionsTypeForLoginReducer = logInACType | LogOutACType | AuthMeACType
 
 export const authRegisterThunk = (payload: { email: string, password: string },
                                   setLoading: (loading: boolean) => void,
@@ -54,17 +54,34 @@ export const logInAC = (payload: DataType, isLogin: boolean) => {
     } as const
 }
 
-// export const logInThunkCreator = (payload: { email: string, password: string, rememberMe: boolean }) => (dispatch: Dispatch) => {
+// export const logInThunkCreator = (payload: { email: string, password: string, rememberMe: boolean }) =>
+// (dispatch: Dispatch) => {
 //     AuthApi.authLogin(payload)
 //         .then((res) => {
 //             dispatch(logInAC(res.data))
 //         })
 //
 //     // .catch((err: AxiosError) => {
-//     //     setError(err.response?.data.error)
+//     //      console.log(err.response?.data.error)
+//     //      console.log((err as Error).message)
 //     // })
-//     // .finally(() => setLoading(false))
+//     // .finally(() => console.log('error'))
 // }
+
+
+//                 через async await
+// export const logInThunkCreator = (payload: { email: string, password: string, rememberMe: boolean }) =>
+//     async (dispatch: Dispatch) => {
+//         try {
+//             let res = await AuthApi.authLogin(payload)
+//             dispatch(logInAC(res.data, true))
+//         } catch (err: any) {
+//             console.log((err as Error).message)
+//         } finally {
+//             console.log('error')
+//         }
+//     }
+
 
 export const logInThunkCreator = (payload: { email: string, password: string, rememberMe: boolean },
                                   setLoading: (loading: boolean) => void,
@@ -77,6 +94,7 @@ export const logInThunkCreator = (payload: { email: string, password: string, re
             dispatch(logInAC(res.data, true))
         } catch (err: any) {
             setError(err.response?.data.error)
+            console.log((err as Error).message)
         } finally {
             setLoading(false)
             setDisabled(false)
@@ -92,12 +110,12 @@ export const AuthMeAC = (data: AuthMeType) => {
     } as const
 }
 
-export const AuthMeThunk = (setLoading:(loading:boolean)=>void) => async (dispatch: Dispatch) => {
+export const AuthMeThunk = (setLoading: (loading: boolean) => void) => async (dispatch: Dispatch) => {
     try {
         let res = await AuthApi.authMe();
         dispatch(AuthMeAC(res.data))
     } catch (err: any) {
-    }finally {
+    } finally {
         setLoading(false)
     }
 }
@@ -139,7 +157,7 @@ export const ForgotpasswordThunkCreator = (
 }
 
 export const newPasswordThunkCreator = (
-    payload: { password: string, resetPasswordToken: string },
+    payload: { password: string, resetPasswordToken: any },
     setLoading: (loading: boolean) => void,
     setRedirect: (redirect: boolean) => void,
     setDisabled: (disabled: boolean) => void,

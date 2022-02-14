@@ -5,16 +5,19 @@ import {Register} from "./pages/Register";
 import {Login} from "./pages/Login";
 import {ForgotPassword} from "./pages/ForgotPassword";
 import {NewPassword} from "./pages/NewPassword";
+import {Coloda} from "./pages/Coloda";
 
 export const Body = () => {
     return (
         <div>
             <Routes>
                 <Route path={'/'} element={<Profile/>}/>
+                <Route path={'/coloda'} element={<Coloda/>}/>
                 <Route path={'/register'} element={<Register/>}/>
                 <Route path={'/login'} element={<Login/>}/>
                 <Route path={'/forgotPassword'} element={<ForgotPassword/>}/>
-                <Route path={'/newPas/*'} element={<NewPassword/>}/>
+                <Route path={'/newPas/:token'} element={<NewPassword/>}/>
+                {/*<Route path={'/newPas/*'} element={<NewPassword/>}/>*/}
                 <Route path={'/404'} element={<h1 style={{textAlign: 'center'}}>404:PAGE NOT FOUND</h1>}/>
                 <Route path={'*'} element={<Navigate to={'/404'}/>}/>
             </Routes>

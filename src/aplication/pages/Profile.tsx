@@ -1,10 +1,33 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {rootReducerType} from "../../store/store";
-import {Navigate} from 'react-router-dom';
-import {ProfileApi} from "../../Api/ProfileApi";
+import {Navigate, NavLink} from 'react-router-dom';
+import {getCardPacks} from "../../Api/ProfileApi";
 import {AuthMeThunk} from "../../reducers/LoginReducer";
-import {LinearProgress} from "@material-ui/core";
+import {LinearProgress, Pagination, Table} from "@material-ui/core";
+import {
+    addCardsPackThunk,
+    deleteCardsPackThunk, getCardsPackForPaginationThunk,
+    getCardsPackThunk,
+    updateCardsPackThunk
+} from "../../reducers/ProfileReducer";
+import styled from "styled-components";
+import {writeCardsPackIdAC} from "../../reducers/ColodaReducer";
+import style from "./../../components/Paginator.module.css";
+import {Paginator} from "../../components/Paginator";
+import Search from "../../components/Search";
+import {setSearchValueAC} from "../../reducers/SearchReducer";
+import { DoubleRange } from '../../components/DoubleRange';
+
+export type payloadForGetCardsType = {
+    packName?: string,
+    min?: number,
+    max?: number,
+    sortPacks?: string,
+    page: number,
+    pageCount: number,
+    user_id?: string | null
+}
 
 
 export const Profile = () => {
@@ -16,25 +39,31 @@ export const Profile = () => {
     // },[])
     let dispatch = useDispatch();
     let isLogin = useSelector<rootReducerType>(state => state.login.isLogin)
-    let [loading, setLoading] = useState(false)
+    let getCardsPack = useSelector<rootReducerType, getCardPacks>(state => state.profile)
+    let nameFromLocalStorage = localStorage.getItem('userID')//for disabled-enabled button
+    let [loading, setLoading] = useState(false);
+    let [colorForButton, setcolorForButton] = useState('all')
+    let searchSelector = useSelector<rootReducerType, string>(state => state.search.search)
 
-
-    // useEffect(() => {
-    //     let payload = {
-    //         packName: 'It-patsan',
-    //         min: 1,
-    //         max: 10,
-    //         sortPacks: 'noSORT',
-    //         page: 1,
-    //         pageCount: 10,
-    //         // user_id: ''
-    //     }
-    //
-    //     ProfileApi.getCardsPack(payload)
-    //         .then((res) => {
-    //             console.log(res.data)
-    //         })
-    // }, [])
+    let payloadAllForGetCards = {
+        // packName: 'It-patsan',
+        // min: 1,
+        // max: 10,
+        //sortPacks: 'noSORT',
+        packName: searchSelector,
+        page: 1,
+        pageCount: 10,
+        // user_id: ''
+    }
+    let payloadMyCardsForGetCards = {
+        //packName: 'IT-PATSAN',
+        // min: 1,
+        // max: 10,
+        // sortPacks: 'noSORT',
+        page: 1,
+        pageCount: 10,
+        user_id: nameFromLocalStorage
+    }
 
     useEffect(() => {
         if (!isLogin) {
@@ -43,175 +72,201 @@ export const Profile = () => {
         }
     }, [])
 
+    useEffect(() => {
+        if (isLogin) {
+            dispatch(getCardsPackThunk(payloadAllForGetCards))
+        }
+    }, [searchSelector]) //следит за searchSelector в payloadAllForGetCards{packName: searchSelector}
+
+    const onClickButtonDeleteHandler = (id: string) => {
+        dispatch(deleteCardsPackThunk(id, payloadMyCardsForGetCards))
+    }
+
+    const onClickButtonUpdateHandler = (id: string) => {
+        dispatch(updateCardsPackThunk(id, payloadMyCardsForGetCards))
+    }
+
+    const onClickAddCardsPackButtonHandler = () => {
+        dispatch(addCardsPackThunk(payloadAllForGetCards))
+    }
+
+    const onClickButtonAllHandler = () => {
+        setcolorForButton('all')
+        dispatch(getCardsPackThunk(payloadAllForGetCards))
+    }
+
+    const onClickButtonMyCardsHandler = () => {
+        setcolorForButton('myCards')
+        dispatch(getCardsPackThunk(payloadMyCardsForGetCards))
+    }
+
+    const onClickGotoColodaHandler = (CardsPackId: string) => {
+        dispatch(writeCardsPackIdAC(CardsPackId))
+    }
+
     if (!isLogin) {
         return <Navigate to={'/login'}/>
     }
 
     return (
-        <>
+        <GeneralDiv>
             {loading && <LinearProgress color="secondary"/>}
-            <div>Profile</div>
-        </>
+            <h1>Profile</h1>
+            <PanelRangeButton>
+                <LeftCase>
+                    <h1 style={{marginLeft: "20px"}}>Users cards / PROFILE</h1>
+                    <button style={{
+                        height: '30px',
+                        marginTop: "30px",
+                        marginLeft: "20px",
+                        backgroundColor: colorForButton === 'all' ? 'skyblue' : ''
+                    }}
+                            onClick={onClickButtonAllHandler}>ALL
+                    </button>
+                    <button style={{
+                        height: '30px',
+                        marginTop: "30px",
+                        marginLeft: "5px",
+                        backgroundColor: colorForButton === 'myCards' ? 'skyblue' : ''
+                    }}
+                            onClick={onClickButtonMyCardsHandler}>MY CARDS
+                    </button>
+                    <>
+                        <SearchStyle>
+                            <Search setLoading={setLoading}/>
+                        </SearchStyle>
+                        <DoubleRange min={0} max={100}/>
+                    </>
+                </LeftCase>
+                <RightCase>
+                    <button style={{marginTop: "4%", padding: '15px'}}
+                            onClick={onClickAddCardsPackButtonHandler}>Create
+                        New CarrdsPack
+                    </button>
+                </RightCase>
+            </PanelRangeButton>
 
-    );
-};
+            <SCforTH>
+                <tr>
+                    <th style={{width: '24%'}}>id</th>
+                    <th style={{width: '24%'}}>user id</th>
+                    <th style={{width: '24%'}}>created</th>
+                    <th style={{width: '8%'}}>name</th>
+                    <th style={{width: '3,1%'}}>cards</th>
+                    <th style={{width: '10%'}}>UPDATE</th>
+                    <th style={{width: '10%'}}>DELETE</th>
+                </tr>
+            </SCforTH>
 
+            <StylesForTable>
+                <Table>
+                    {getCardsPack.cardPacks.map(m => {
+                        return (
+                            <tr>
+                                <SCforTDbig>
+                                    <td>{m._id}</td>
 
-//
-// import React, {useEffect, useState} from 'react';
-// import style from './Profile.module.css'
-// import {ButtonAC} from "../reducers/ButtonReducer";
-// import {useDispatch, useSelector} from "react-redux";
-// import {AppStoreType} from "../redux/store";
-// import {Redirect} from "react-router-dom";
-// import {
-//     AddNewCardsPackThunk, DeleteCardsPackThunk,
-//     getCardsPackForPaginationThunk,
-//     getCardsPackThunk,
-//     InitialCardsPackReducerType
-// } from "../reducers/CardsPackReducer";
-// import {Table} from "@material-ui/core";
-// import {ButtonComponentForCards} from "../components/ButtonComponentForCards";
-// import {Pagination} from "../components/Pagination";
-// import Search from "../components/Search";
-// import {setSearchValueAC} from "../reducers/SearchReducer";
-// import {DoubleRange} from "../components/DoubleRange";
-// import {NavLink} from "react-router-dom";
-// import {cardsColodaThunk} from "../reducers/ColodaReducer";
-//
-//
-// export const Profile = React.memo(() => {
-//         let [userID, setUserID] = useState('')
-//         let dispatch = useDispatch()
-//         let cardsPack = useSelector<AppStoreType, InitialCardsPackReducerType>(state => state.cardsPack)
-//         let maxPageFromServer = Math.ceil(cardsPack.cardPacksTotalCount / cardsPack.pageCount)//maxNumber of pages
-//         let searchSelector = useSelector<AppStoreType, string>(state => state.search.search)//for search
-//         let UserIdFromLocalStorage = localStorage.getItem('userId')//for disabled-enabled button
-//
-//         let [minPagePagination, setMinPagePagination] = useState(1)//for pagination
-//         let [maxPagePagination, setMaxPagePagination] = useState(10)
-//
-//
-//         const leftArrowForPaginationHandler = () => {
-//             console.log(cardsPack)
-//             setMinPagePagination(minPagePagination - 10)
-//             setMaxPagePagination(maxPagePagination - 10)
-//             if (maxPagePagination + 10 >= maxPageFromServer) {
-//                 setMinPagePagination(minPagePagination - 10)
-//                 setMaxPagePagination(minPagePagination - 1)
-//                 dispatch(getCardsPackForPaginationThunk(minPagePagination - 1))
-//             }
-//             if (maxPagePagination + 10 <= maxPageFromServer) {  //для перерисовки карточек, когда нажимаем стрелку
-//                 dispatch(getCardsPackForPaginationThunk(maxPagePagination - 10))
-//             }
-//         }
-//         const rightArrowForPaginationHandler = () => {
-//             if (minPagePagination + 10 >= 11) {  //для перерисовки карточек, когда нажимаем стрелку
-//                 dispatch(getCardsPackForPaginationThunk(minPagePagination + 10))
-//             }
-//             setMinPagePagination(minPagePagination + 10)
-//             setMaxPagePagination(maxPagePagination + 10)
-//             if (maxPagePagination + 10 >= maxPageFromServer) {
-//                 let maxPage = maxPagePagination - maxPageFromServer
-//                 setMaxPagePagination(maxPagePagination - maxPage)
-//             }
-//         }
-//
-//         useEffect(() => {
-//             // CardsApi.GETCardsPack()
-//             //     .then((res) => {
-//             //             // console.log(res.data)
-//             //             // dispatch(getCardsPackAC(res.data.cardPacks))
-//             //             // console.log(res.data)
-//             //         }
-//             //     )
-//
-//             dispatch(getCardsPackThunk({cardsPack, pageCount: 10, packName: searchSelector}))
-//         }, [searchSelector])
-//
-//         dispatch(ButtonAC('Profile'))//for yellow button
-//         let loginTrue: any = useSelector<AppStoreType>(state => state.login);
-//         if (loginTrue.length === 0) {
-//             dispatch(ButtonAC('Login'))//for yellow button
-//             return <Redirect to={'/login'}/>
-//         }
-//
-//         const AddNewCardsPack = () => {
-//             dispatch(AddNewCardsPackThunk(setUserID))
-//         }
-//
-//         const onClickDeleteHandler = (mID: string) => {
-//             dispatch(DeleteCardsPackThunk(mID))
-//         }
-//
-//         const onclickHandlerForNavLink = (id: string) => {
-//             dispatch(cardsColodaThunk(id))
-//
-//         }
-//
-//         return (
-//             <div className={style.generalDiv}>
-//                 <div className={style.general}>
-//                     <tr><h1 className={style.header}>Users cards / PROFILE</h1></tr>
-//                     <Table className={style.table}>
-//                         <div className={style.headerCase}>
-//                             <ButtonComponentForCards title={'create CARDS pack'} callBack={AddNewCardsPack}/>
-//                             <Search setSearch={(value) => dispatch(setSearchValueAC(value))}/>
-//                             <DoubleRange min={0} max={100}/>
-//                         </div>
-//
-//                         <div>
-//                             <tr>
-//                                 <th className={style.td1}>id</th>
-//                                 <th className={style.td1}>user id</th>
-//                                 <th className={style.td1}>created</th>
-//                                 <th className={style.td3}>name</th>
-//                                 <th className={style.td2}>cardsCount</th>
-//                                 <th className={style.td2}>UPDATE</th>
-//                                 <th className={style.td2}>DELETE</th>
-//                             </tr>
-//
-//                             {cardsPack.cardPacks.map((m) => {
-//                                 return (
-//                                     <tr>
-//                                         <td className={style.td1}>{m._id}</td>
-//                                         <td className={style.td1}>{m.user_id}</td>
-//                                         <td className={style.td1}>{m.created}</td>
-//                                         <td className={style.td3}>
-//                                             <NavLink onClick={() => onclickHandlerForNavLink(m._id)}
-//                                                      className={style.NavLinkStyle} to={'/coloda'}>
-//                                                 {m.name}
-//                                             </NavLink>
-//                                         </td>
-//                                         <td>{m.cardsCount}</td>
-//                                         <td>
-//                                             <button disabled={UserIdFromLocalStorage === m.name ? false : true}>UPDATE
-//                                             </button>
-//                                         </td>
-//                                         <td>
-//                                             <button disabled={UserIdFromLocalStorage === m.name ? false : true}
-//                                                     onClick={() => onClickDeleteHandler(m._id)}>DELETE
-//                                             </button>
-//                                         </td>
-//
-//                                     </tr>
-//                                 )
-//                             })}</div>
-//                     </Table>
-//
-//
-//                     <div className={style.generalForPagination}>
-//                         <button className={style.arrowHover} onClick={leftArrowForPaginationHandler}
-//                                 disabled={minPagePagination == 1 ? true : false}>{`${`<`}`}</button>
-//                         <Pagination minPagePagination={minPagePagination} maxPagePagination={maxPagePagination}/>
-//                         <button className={style.arrowHover} onClick={rightArrowForPaginationHandler}
-//                                 disabled={maxPagePagination >= maxPageFromServer ? true : false}> {`${`>`}`}</button>
-//                     </div>
-//                 </div>
-//
-//
-//             </div>
-//
-//         )
-//     }
-// )
+                                </SCforTDbig>
+                                <SCforTDbig>
+                                    <td>{m.user_id}</td>
+                                </SCforTDbig>
+                                <SCforTDbig>
+                                    <td>{m.created}</td>
+                                </SCforTDbig>
+                                <SCforTDmedium>
+                                    <NavLink to={'coloda'}
+                                             style={{textDecoration: 'none', color: 'black'}}>
+                                        <ChangeColorForNavLink>
+                                            <td onClick={() => onClickGotoColodaHandler(m._id)}>{m.name}</td>
+                                        </ChangeColorForNavLink>
+                                    </NavLink>
+                                </SCforTDmedium>
+                                <SCforTDsmall>
+                                    <td>{m.cardsCount}</td>
+                                </SCforTDsmall>
+                                <SCforTDmedium>
+                                    <td>
+                                        <button onClick={() => onClickButtonUpdateHandler(m._id)}
+                                                disabled={m.user_id == nameFromLocalStorage ? false : true}>UPDATE
+                                        </button>
+                                    </td>
+                                </SCforTDmedium>
+                                <SCforTDmedium>
+                                    <td>
+                                        <button onClick={() => onClickButtonDeleteHandler(m._id)}
+                                                disabled={m.user_id == nameFromLocalStorage ? false : true}>DELETE
+                                        </button>
+                                    </td>
+                                </SCforTDmedium>
+                            </tr>
+                        )
+                    })}
+                </Table>
+
+            </StylesForTable>
+            <Paginator/>
+        </GeneralDiv>
+    )
+}
+
+let GeneralDiv = styled.div`
+  margin-top: -10px;
+  height: 100%;
+  width: 100%;
+  background-color: darkslategrey;
+`
+
+const PanelRangeButton = styled.div`
+  width: 100%;
+  display: flex;
+  height: 100px;
+`
+const LeftCase = styled.div`
+  display: flex;
+  width: 69%;
+`
+const RightCase = styled.div`
+  width: 31%;
+`
+
+let SCforTH = styled.div`
+  background-color: white;
+`
+
+let StylesForTable = styled.div`
+  tr:nth-child(even) {
+    background-color: skyblue;
+    width: 100px;
+  }
+
+  border: solid white 2px;
+  margin: 0px 5px;
+`
+
+let SCforTDbig = styled.td`
+  border: solid white 1px;
+  width: 17%;
+  padding-left: 3.5%;
+`
+let SCforTDmedium = styled.td`
+  border: solid white 1px;
+  width: 7%;
+  padding-left: 2%;
+`
+let SCforTDsmall = styled.td`
+  border: solid white 1px;
+  width: 2%;
+  padding-left: 1%;
+`
+
+let ChangeColorForNavLink = styled.td`
+  td:hover {
+    color: white
+  }
+`
+
+let SearchStyle = styled.div`
+  margin-top: 15px;
+  margin-left: 20px;
+  margin-bottom: 30px;
+`

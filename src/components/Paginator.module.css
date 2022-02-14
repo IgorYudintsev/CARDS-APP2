@@ -1,0 +1,40 @@
+.generalForPagination {
+    margin-top: 55px;
+    background-color: #424242;
+    height: 25px;
+    width: 43%;
+}
+
+.paginationBlock:hover {
+    margin-top: 25px;
+    color: white;
+    cursor: pointer;
+}
+
+
+.ActivePaginationBlock {
+    color: yellow;
+    margin-top: 25px;
+}
+
+.ActivePaginationBlock:hover {
+    margin-top: 25px;
+    color: white;
+    cursor: pointer;
+}
+
+.arrowHover:hover {
+    background-color: yellow;
+}
+
+
+.search {
+    margin-top: 12px;
+    margin-left: 55px;
+    height: 28px;
+}
+
+.range {
+    margin-left: 55px;
+    width: 155px;
+}

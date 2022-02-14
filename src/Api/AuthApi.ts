@@ -25,7 +25,7 @@ export const AuthApi = {
     authLogOut: () => {
         return instance.delete('/auth/me')
     },
-    authRecoveryPassword: (payload: { email: string, from: string, message: string }) => {
+    authRecoveryPassword: (payload: { email: string, from: any, message: string }) => {
         return instance.post('https://neko-back.herokuapp.com/2.0/auth/forgot', {
             email: payload.email,
             from: payload.from,
