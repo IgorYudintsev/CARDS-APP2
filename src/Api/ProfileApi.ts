@@ -9,12 +9,13 @@ export const ProfileApi = {
     getCardsPack: (payload: any) => {
         return instance.get<getCardPacks>('/cards/pack', {params: {...payload}})
     },
-    addCardsPack: () => {
-        return instance.post<addCardsPackType>('/cards/pack', {cardsPack: {name: 'IT-PATSAN'}})
+    addCardsPack: (name:any) => {
+        console.log(name)
+        return instance.post<addCardsPackType>('/cards/pack', {cardsPack: {name:name}})
         // return instance.post<addCardsPackType>('/cards/pack', {cardsPack: {}})
     },
-    updateCardsPack:(id:string)=>{
-        return instance.put(`cards/pack`,{cardsPack:{_id:id,name: "newIT-PATSAN" }})
+    updateCardsPack:(id:string,inputTitle:string)=>{
+        return instance.put(`cards/pack`,{cardsPack:{_id:id,name: inputTitle}})
     },
     deleteCardsPack: (id: string) => {
         return instance.delete(`/cards/pack?id=${id}`)

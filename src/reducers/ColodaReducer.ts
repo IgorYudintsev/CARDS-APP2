@@ -24,8 +24,7 @@ export const ColodaReducer = (state:InitialStateType=initialState, action: Actio
             return {...state,packUserId:action.payload.CardsPackId}
         }
         case "GET-CARDS-PACK-ID":{
-            console.log(action.payload.data)
-            return {...state,cards:action.payload.data}
+               return {...state,cards:action.payload.data}
         }
         default:{
             return state
@@ -56,20 +55,18 @@ export const getCardsCardThunk=(CardsPackId:string)=>async (dispatch:Dispatch<Ac
     try {
         let res =  await ColodaAPI.getCardsCard(CardsPackId)
         dispatch(getCardsCardAC(res.data.cards))
-        console.log(res.data.cards)
-
     } catch {
-        console.log('pizdec')
+        console.log('vse propalo')
     }
 }
 
-export const addCardsCardThunk = (CardsPackId: string): AppThunk => async (dispatch) => {
+export const addCardsCardThunk = (CardsPackId: string,question:string,answer:string): AppThunk => async (dispatch) => {
     try {
-         let res = await ColodaAPI.AddCardsCard(CardsPackId)
+         let res = await ColodaAPI.AddCardsCard(CardsPackId,question,answer)
         console.log(res.data)
         dispatch(getCardsCardThunk(CardsPackId))
     } catch {
-        console.log('pizdec')
+        console.log('vse propalo')
     }
 }
 
@@ -79,7 +76,7 @@ export const deleteCardscardThunk = (id: string,CardsPackId: string):AppThunk =>
         let res = await ColodaAPI.deleteCardsPack(id)
             dispatch(getCardsCardThunk(CardsPackId))
     } catch {
-        console.log('pizdec')
+        console.log('vse propalo')
     }
 }
 
@@ -88,6 +85,16 @@ export const updateCardsCardThunk= (id: string,CardsPackId: string):AppThunk => 
         let res = await ColodaAPI.updateCardsPack(id)
         dispatch(getCardsCardThunk(CardsPackId))
     } catch {
-        console.log('pizdec')
+        console.log('vse propalo')
+    }
+}
+
+export const gradeCardsThunk= (grade:number,card_id: string):AppThunk => async (dispatch) => {
+    try {
+        let res = await ColodaAPI.gradeCards(grade,card_id)
+        console.log(res)
+        // dispatch(getCardsCardThunk(CardsPackId))
+    } catch {
+        console.log('vse propalo')
     }
 }

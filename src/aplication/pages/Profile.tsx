@@ -4,20 +4,20 @@ import {rootReducerType} from "../../store/store";
 import {Navigate, NavLink} from 'react-router-dom';
 import {getCardPacks} from "../../Api/ProfileApi";
 import {AuthMeThunk} from "../../reducers/LoginReducer";
-import {LinearProgress, Pagination, Table} from "@material-ui/core";
+import {LinearProgress, Table} from "@material-ui/core";
 import {
     addCardsPackThunk,
-    deleteCardsPackThunk, getCardsPackForPaginationThunk,
+    deleteCardsPackThunk,
     getCardsPackThunk,
     updateCardsPackThunk
 } from "../../reducers/ProfileReducer";
 import styled from "styled-components";
 import {writeCardsPackIdAC} from "../../reducers/ColodaReducer";
-import style from "./../../components/Paginator.module.css";
 import {Paginator} from "../../components/Paginator";
 import Search from "../../components/Search";
-import {setSearchValueAC} from "../../reducers/SearchReducer";
-import { DoubleRange } from '../../components/DoubleRange';
+import {DoubleRange} from '../../components/DoubleRange';
+import {ModalWindowForCreate} from "./ModalWindowForCreate";
+import {ModalWindowForUpdate} from "./ModalWindowForUpdate";
 
 export type payloadForGetCardsType = {
     packName?: string,
@@ -44,6 +44,9 @@ export const Profile = () => {
     let [loading, setLoading] = useState(false);
     let [colorForButton, setcolorForButton] = useState('all')
     let searchSelector = useSelector<rootReducerType, string>(state => state.search.search)
+    let [showModal, setShowModal] = useState(false);
+    let [showModalUpdate, setShowModalUpdate] = useState(false);
+    let [dataForModalUpdate, setDataForModalUpdate] = useState({id: '', name: ''})
 
     let payloadAllForGetCards = {
         // packName: 'It-patsan',
@@ -82,12 +85,15 @@ export const Profile = () => {
         dispatch(deleteCardsPackThunk(id, payloadMyCardsForGetCards))
     }
 
-    const onClickButtonUpdateHandler = (id: string) => {
-        dispatch(updateCardsPackThunk(id, payloadMyCardsForGetCards))
+    const onClickButtonUpdateHandler = (id: string, name: string) => {
+        setDataForModalUpdate({id, name})
+        setShowModalUpdate(true)
     }
 
+
     const onClickAddCardsPackButtonHandler = () => {
-        dispatch(addCardsPackThunk(payloadAllForGetCards))
+        setShowModal(true)
+        // dispatch(addCardsPackThunk(payloadAllForGetCards))
     }
 
     const onClickButtonAllHandler = () => {
@@ -104,12 +110,17 @@ export const Profile = () => {
         dispatch(writeCardsPackIdAC(CardsPackId))
     }
 
+
     if (!isLogin) {
         return <Navigate to={'/login'}/>
     }
 
     return (
         <GeneralDiv>
+            {showModalUpdate &&
+                <ModalWindowForUpdate setShowModalUpdate={setShowModalUpdate} title={'UPDATE CARDS PACK'}
+                                      dataForModalUpdate={dataForModalUpdate}/>}
+            {showModal && <ModalWindowForCreate setShowModal={setShowModal} title={'CREATE NEW CARDS PACK'}/>}
             {loading && <LinearProgress color="secondary"/>}
             <h1>Profile</h1>
             <PanelRangeButton>
@@ -139,8 +150,7 @@ export const Profile = () => {
                     </>
                 </LeftCase>
                 <RightCase>
-                    <button style={{marginTop: "4%", padding: '15px'}}
-                            onClick={onClickAddCardsPackButtonHandler}>Create
+                    <button style={{marginTop: "4%", padding: '15px'}} onClick={onClickAddCardsPackButtonHandler}>Create
                         New CarrdsPack
                     </button>
                 </RightCase>
@@ -182,11 +192,21 @@ export const Profile = () => {
                                     </NavLink>
                                 </SCforTDmedium>
                                 <SCforTDsmall>
-                                    <td>{m.cardsCount}</td>
+
+                                    {/*// В NavLink передаем {m._id}*/}
+                                    <NavLink to={`myCards/${m._id}`} style={{textDecoration: 'none', color: 'black'}}>
+                                        <ChangeColorForNavLink>
+                                            {/*// Ранее мы m._id передавали через onClick- из-за этого возможен рассинхрон*/}
+                                            {/*<td onClick={() => onClickGotoColodaHandler(m._id)}>{m.cardsCount}\</td>*/}
+                                            <td >{m.cardsCount}</td>
+                                        </ChangeColorForNavLink>
+                                    </NavLink>
+
+
                                 </SCforTDsmall>
                                 <SCforTDmedium>
                                     <td>
-                                        <button onClick={() => onClickButtonUpdateHandler(m._id)}
+                                        <button onClick={() => onClickButtonUpdateHandler(m._id, m.name)}
                                                 disabled={m.user_id == nameFromLocalStorage ? false : true}>UPDATE
                                         </button>
                                     </td>

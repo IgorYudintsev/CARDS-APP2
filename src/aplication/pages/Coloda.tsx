@@ -12,18 +12,20 @@ import {
     InitialStateType,
     updateCardsCardThunk
 } from "../../reducers/ColodaReducer";
+import {ModalWindowForCreate} from "./ModalWindowForCreate";
+import {ModalWindowForCreateCard} from "./ModalWindowForCreateCard";
 
 export const Coloda = () => {
     let dispatch = useDispatch();
 
     let getCardsCard = useSelector<rootReducerType, Array<cardsType>>(state => state.coloda.cards)
-      let CardsPackId = useSelector<rootReducerType, string>(state => state.coloda.packUserId)
+    let CardsPackId = useSelector<rootReducerType, string>(state => state.coloda.packUserId)
     let nameFromLocalStorage = localStorage.getItem('userID')//for disabled-enabled button
     let [loading, setLoading] = useState(false);
-
+    let [showModal, setShowModal] = useState(false);
 
     const onClickButtonDeleteForColodaHandler = (id: string) => {
-                  dispatch(deleteCardscardThunk(id, CardsPackId))
+        dispatch(deleteCardscardThunk(id, CardsPackId))
     }
 
     const onClickButtonUpdateForColodaHandler = (id: string) => {
@@ -31,22 +33,23 @@ export const Coloda = () => {
     }
 
     const onClickAddCardsCardButtonHandler = () => {
-         dispatch(addCardsCardThunk(CardsPackId))
+        setShowModal(true)
+        // dispatch(addCardsCardThunk(CardsPackId))
     }
 
     useEffect(() => {
         dispatch(getCardsCardThunk(CardsPackId))
-    },[])
+    }, [])
 
-    if (CardsPackId==='') {
+    if (CardsPackId === '') {
         return <Navigate to={'/'}/>
     }
-
 
 
     return (
         <GeneralDiv>
             {loading && <LinearProgress color="secondary"/>}
+            {showModal && <ModalWindowForCreateCard setShowModal={setShowModal} title={'CREATE NEW CARDS CARD'}/>}
             <h1>COLODA</h1>
             <PanelRangeButton>
                 <LeftCase>
@@ -54,8 +57,7 @@ export const Coloda = () => {
                 </LeftCase>
                 <RightCase>
                     <button style={{marginTop: "4%", padding: '15px'}}
-                            onClick={onClickAddCardsCardButtonHandler}>Create
-                        New CardsCard
+                            onClick={onClickAddCardsCardButtonHandler}>Create New CardsCard
                     </button>
                 </RightCase>
             </PanelRangeButton>
@@ -64,8 +66,8 @@ export const Coloda = () => {
                 <tr>
                     <th style={{width: '24%'}}>cardsPackID</th>
                     <th style={{width: '24%'}}>user id</th>
-                    <th style={{width: '24%'}}>created</th>
-                    <th style={{width: '8%'}}>question</th>
+                    <th style={{width: '24%'}}>question</th>
+                    <th style={{width: '8%'}}>answer</th>
                     <th style={{width: '3,1%'}}>rating</th>
                     <th style={{width: '10%'}}>UPDATE</th>
                     <th style={{width: '10%'}}>DELETE</th>
@@ -78,24 +80,23 @@ export const Coloda = () => {
                             <tr>
                                 <SCforTDbig>
                                     <td>{m.cardsPack_id}</td>
-
                                 </SCforTDbig>
                                 <SCforTDbig>
                                     <td>{m.user_id}</td>
                                 </SCforTDbig>
                                 <SCforTDbig>
-                                    <td>{m.created}</td>
+                                    <td>{m.question}</td>
                                 </SCforTDbig>
                                 <SCforTDmedium>
                                     <NavLink to={'coloda'}
                                              style={{textDecoration: 'none', color: 'black'}}>
                                         <ChangeColorForNavLink>
-                                            <td>{m.question}</td>
+                                            <td>{m.answer}</td>
                                         </ChangeColorForNavLink>
                                     </NavLink>
                                 </SCforTDmedium>
                                 <SCforTDsmall>
-                                    <td>{m.rating}</td>
+                                    <td>{Math.round(m.grade)}</td>
                                 </SCforTDsmall>
                                 <SCforTDmedium>
                                     <td>

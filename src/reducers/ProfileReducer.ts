@@ -27,10 +27,10 @@ export const ProfileReducer = (state: initialStateType = initialState, action: A
         case "DELETE-CARDS-PACK": {
             return {...state, cardPacks: state.cardPacks.filter(f => f._id !== action.payload.id)}
         }
-        case "GET-CARDS-PACK-PAGINATION":{
+        case "GET-CARDS-PACK-PAGINATION": {
             console.log(action.data)
             return action.data
-           // return {...state} = action.data
+            // return {...state} = action.data
         }
         default:
             return state
@@ -69,13 +69,11 @@ const addCardsPackAC = (data: cardPackDATA) => {
     } as const
 }
 
-
 //пример вызова санки САНКОЙ и ее типизация
-export const addCardsPackThunk = (payload: payloadForGetCardsType): AppThunk =>
+export const addCardsPackThunk = (payload: payloadForGetCardsType, inputTitle: string,): AppThunk =>
     async (dispatch) => {
         try {
-            let res = await ProfileApi.addCardsPack();
-            console.log(res.data)
+            let res = await ProfileApi.addCardsPack(inputTitle);
             // dispatch(addCardsPackAC(res.data.newCardsPack))
             dispatch(getCardsPackThunk(payload))
             localStorage.setItem('userID', res.data.newCardsPack.user_id)
@@ -102,9 +100,9 @@ export const deleteCardsPackThunk = (id: string, payload: payloadForGetCardsType
     }
 }
 
-export const updateCardsPackThunk = (id: string, payload: payloadForGetCardsType): AppThunk => async (dispatch) => {
+export const updateCardsPackThunk = (id: string, payload: payloadForGetCardsType,inputTitle:string): AppThunk => async (dispatch) => {
     try {
-        let res = await ProfileApi.updateCardsPack(id)
+        let res = await ProfileApi.updateCardsPack(id,inputTitle)
         console.log(res.data)
         dispatch(getCardsPackThunk(payload))
     } catch {
