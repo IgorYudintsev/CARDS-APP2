@@ -7,6 +7,8 @@ import {ForgotPassword} from "./pages/ForgotPassword";
 import {NewPassword} from "./pages/NewPassword";
 import {Coloda} from "./pages/Coloda";
 import {MyCards} from "./pages/MyCards";
+import MediaPage from './pages/MediaPage';
+
 
 export const Body = () => {
     return (
@@ -24,6 +26,8 @@ export const Body = () => {
                 <Route path={'/register'} element={<Register/>}/>
                 <Route path={'/login'} element={<Login/>}/>
                 <Route path={'/forgotPassword'} element={<ForgotPassword/>}/>
+
+                <Route path={'/mediaPage'} element={<MediaPage/>}/>
 
                 {/*<Route path={'/newPas/*'} element={<NewPassword/>}/>*/}
                 <Route path={'/404'} element={<h1 style={{textAlign: 'center'}}>404:PAGE NOT FOUND</h1>}/>

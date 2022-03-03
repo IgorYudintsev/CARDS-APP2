@@ -34,6 +34,9 @@ export const Nav = () => {
                 <StyleForButton><Button variant="contained" color={'inherit'} size={'small'}><NavLink to={'/'}
                                                                                                       style={{textDecoration: 'none'}}>Profile</NavLink></Button>
                 </StyleForButton>
+                <StyleForButton><Button variant="contained" color={'inherit'} size={'small'}><NavLink to={'mediaPage'}
+                                                                                                      style={{textDecoration: 'none'}}>MediaPage</NavLink></Button>
+                </StyleForButton>
             </DivForButton>
         </GeneralDiv>
     );
